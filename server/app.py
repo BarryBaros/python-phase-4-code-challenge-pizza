@@ -67,6 +67,18 @@ def get_restaurant(id):
     
     return jsonify({"error": "Restaurant not found"}), 404
 
+@app.route('/pizzas', methods=["GET"])
+def get_pizzas():
+    if request.method == "GET":
+        pizzas = Pizza.query.all()
+        return make_response(
+            jsonify([pizza.to_dict() for pizza in pizzas]),
+            200
+        )
+    else:
+        return make_response(
+            jsonify({"message": "No pizzas found."})
+        )
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
