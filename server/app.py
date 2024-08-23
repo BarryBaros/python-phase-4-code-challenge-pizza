@@ -38,9 +38,35 @@ def restaurant():
             jsonify({"message": "No restaurants found."})
         )
     
-    @app.route('/restaurants/<int:id>', methods=['GET'])
-    def get_restaurant(id):
-        r
+@app.route('/restaurants/<int:id>', methods=['GET'])
+def get_restaurant(id):
+    restaurant = Restaurant.query.get(id)
+    
+    if restaurant:
+        response = {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address,
+            "restaurant_pizzas": []
+        }
+        for rp in restaurant.restaurant_pizzas:
+            pizza_data = {
+                "id": rp.id,
+                "price": rp.price,
+                "restaurant_id": rp.restaurant_id,
+                "pizza_id": rp.pizza_id,
+                "pizza": {
+                    "id": rp.pizza.id,
+                    "name": rp.pizza.name,
+                    "ingredients": rp.pizza.ingredients
+                }
+            }
+            response["restaurant_pizzas"].append(pizza_data)
+        
+        return jsonify(response), 200
+    
+    return jsonify({"error": "Restaurant not found"}), 404
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
