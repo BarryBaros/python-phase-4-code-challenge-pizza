@@ -25,7 +25,7 @@ class Restaurant(db.Model, SerializerMixin):
     pizzas = association_proxy('restaurant_pizzas', 'pizza')
 
     # add serialization rules
-    serialize_rules = ("-restaurant_pizzas.restaurant", "-pizzas.restaurants")
+    serialize_only = ("id", "name", "address")
 
     def __repr__(self):
         return f"<Restaurant {self.name}>"
@@ -58,19 +58,18 @@ class RestaurantPizza(db.Model, SerializerMixin):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=False)
     pizza_id = db.Column(db.Integer, db.ForeignKey('pizzas.id'), nullable=False)
 
-    # add relationships
     restaurant = db.relationship('Restaurant', back_populates='restaurant_pizzas')
     pizza = db.relationship('Pizza', back_populates='restaurant_pizzas')
 
     # add serialization rules
     serialize_rules = ("-restaurant.restaurant_pizzas", "-pizza.restaurant_pizzas")
 
-    # add validation
     @validates('price')
     def validate_price(self, key, price):
         if price < 1 or price > 30:
             raise ValueError("Price must be between $1 and $30.")
         return price
+
     
     def __repr__(self):
         return f"<RestaurantPizza ${self.price}>"
