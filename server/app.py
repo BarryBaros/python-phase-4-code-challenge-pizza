@@ -40,7 +40,7 @@ def restaurants():
     
 @app.route('/restaurants/<int:id>', methods=['GET'])
 def get_restaurant(id):
-    restaurant = Restaurant.query.get(id)
+    restaurant = db.session.get(Restaurant, id)
     
     if restaurant:
         response = {
@@ -76,7 +76,7 @@ def get_pizzas():
 
 @app.route('/restaurants/<int:id>', methods=['DELETE'])
 def delete_restaurant(id):
-    restaurant = Restaurant.query.get(id)
+    restaurant = db.session.get(Restaurant, id)
     if restaurant:
         db.session.delete(restaurant)
         db.session.commit()
@@ -92,17 +92,17 @@ def create_restaurant_pizza():
         # Validate the price
         price = data.get('price')
         if not isinstance(price, int) or price <= 0:
-            raise ValueError("Price must be a positive integer.")
+            raise ValueError("validation errors")
 
         # Validate pizza_id and restaurant_id
         pizza_id = data.get('pizza_id')
         restaurant_id = data.get('restaurant_id')
 
-        pizza = Pizza.query.get(pizza_id)
-        restaurant = Restaurant.query.get(restaurant_id)
+        pizza = db.session.get(Pizza, pizza_id)
+        restaurant = db.session.get(Restaurant, restaurant_id)
 
         if not pizza or not restaurant:
-            raise ValueError("Invalid pizza_id or restaurant_id.")
+            raise ValueError("validation errors")
 
         # Create the RestaurantPizza
         restaurant_pizza = RestaurantPizza(
@@ -134,7 +134,7 @@ def create_restaurant_pizza():
         return jsonify(response), 201
     
     except ValueError as e:
-        return jsonify({"errors": [str(e)]}), 422
+        return jsonify({"errors": [str(e)]}), 400
     
     except Exception as e:
         return jsonify({"errors": ["Something went wrong."]}), 500
