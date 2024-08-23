@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from models import db, Restaurant, RestaurantPizza, Pizza
 from flask_migrate import Migrate
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, jsonify
 from flask_restful import Api, Resource
 import os
 
@@ -24,6 +24,23 @@ api = Api(app)
 def index():
     return "<h1>Code challenge</h1>"
 
+@app.route('/restaurants', methods=['GET'])
+def restaurant():
+    if request.method == 'GET':
+        restaurants = Restaurant.query.all()
+
+        return make_response(
+            jsonify([restaurant.to_dict() for restaurant in restaurants]),
+            200,
+        )
+    else:
+        return make_response(
+            jsonify({"message": "No restaurants found."})
+        )
+    
+    @app.route('/restaurants/<int:id>', methods=['GET'])
+    def get_restaurant(id):
+        r
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
